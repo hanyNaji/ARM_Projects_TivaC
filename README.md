@@ -3,7 +3,7 @@
 # Project(1) Advanced Calculator:
 
  <h3>takes any expression from the user with multiple operations and prints the result</h3>
- ![IMG-20230820-WA0003](https://github.com/hanyNaji/ARM_Projects_TivaC/assets/44531419/714e554b-3e4c-4508-8e4f-fa67caf74cea)
+ ![alt text](https://github.com/hanyNaji/ARM_Projects_TivaC/assets/44531419/714e554b-3e4c-4508-8e4f-fa67caf74cea)
 
 
  <h3>Hardware components:</h3>
