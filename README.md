@@ -1,6 +1,7 @@
 # ARM_Projects_TivaC
-project 1:
-Advanced Calculator:
+
+# Project(1) Advanced Calculator:
+
  takes any expression from the user with multiple operations and prints the result
 
  Hardware components:
