@@ -4,11 +4,8 @@ Advanced Calculator:
  takes any expression from the user with multiple operations and prints the result
 
  Hardware components:
- 
  1- Tiva C EK-TM4C123
- 
  2- keypad
- 
  3- LCD 2x16
  4- potentiometer
  5- breadboard
