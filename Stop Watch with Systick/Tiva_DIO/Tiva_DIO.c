@@ -2,7 +2,7 @@
  * Tiva_DIO.c
  *
  *  Created on: Aug 13, 2023
- *      Author: hanyt
+ *      Author: hany nagy
  */
 
 #include "Tiva_DIO.h"
@@ -10,7 +10,7 @@
 
 /****************** DATA_BITS REGISTER ******************/
 
-void WriteDataBIT(PORT_Name_Type port, unsigned char bit)
+void WriteDataBIT(PORT_Name_Type port, uint8_t bit)
 {
     switch (port) {
         case PORTA:
@@ -37,7 +37,7 @@ void WriteDataBIT(PORT_Name_Type port, unsigned char bit)
 }
 
 
-void WriteDataBITS(PORT_Name_Type port, unsigned char bits, unsigned char value)
+void WriteDataBITS(PORT_Name_Type port, uint8_t bits, uint8_t value)
 {
     switch (port) {
         case PORTA:
@@ -63,7 +63,7 @@ void WriteDataBITS(PORT_Name_Type port, unsigned char bits, unsigned char value)
     }
 }
 
-void ClearDataBIT(PORT_Name_Type port, unsigned char bit)
+void ClearDataBIT(PORT_Name_Type port, uint8_t bit)
 {
     switch (port) {
         case PORTA:
@@ -89,9 +89,9 @@ void ClearDataBIT(PORT_Name_Type port, unsigned char bit)
     }
 }
 
-unsigned char ReadDataBIT(PORT_Name_Type port, unsigned char bit)
+uint8_t ReadDataBIT(PORT_Name_Type port, uint8_t bit)
 {
-    unsigned char readBit = 0;
+    uint8_t readBit = 0;
     switch (port) {
         case PORTA:
             readBit = GPIO_PORTA_DATA_BITS_R[1<<bit];
@@ -164,8 +164,10 @@ void DIO_PORT_Init(PORT_Name_Type port)
 }
 
 /***********************************/
-void DIO_InitPin(PORT_Name_Type Port, DIO_Pin_type pin_num ,DIO_PinStatus_type status)
+void DIO_InitPin(DIO_AllPINS_TYPE pin ,DIO_PinStatus_type status)
 {
+    uint8_t Port = pin / 8;
+    uint8_t pin_num = pin % 8;
     switch (status)
     {
         case OUTPUT:
@@ -266,9 +268,10 @@ void DIO_InitPin(PORT_Name_Type Port, DIO_Pin_type pin_num ,DIO_PinStatus_type s
 }
 
 
-void DIO_WritePin(PORT_Name_Type Port, DIO_Pin_type pin_num, Output_Value_Type value)
+void DIO_WritePin(DIO_AllPINS_TYPE pin, Output_Value_Type value)
 {
-
+    uint8_t Port = pin / 8;
+    uint8_t pin_num = pin % 8;
     switch (Port)
     {
         case PORTA:
@@ -292,8 +295,10 @@ void DIO_WritePin(PORT_Name_Type Port, DIO_Pin_type pin_num, Output_Value_Type v
     }
 }
 
-Output_Value_Type DIO_ReadPin(PORT_Name_Type Port, DIO_Pin_type pin_num)
+Output_Value_Type DIO_ReadPin(DIO_AllPINS_TYPE pin)
 {
+    uint8_t Port = pin / 8;
+    uint8_t pin_num = pin % 8;
     switch (Port)
     {
         case PORTA:
@@ -320,8 +325,10 @@ Output_Value_Type DIO_ReadPin(PORT_Name_Type Port, DIO_Pin_type pin_num)
     }
 }
 
-void DIO_TogglePin(PORT_Name_Type Port, DIO_Pin_type pin_num)
+void DIO_TogglePin(DIO_AllPINS_TYPE pin)
 {
+    uint8_t Port = pin / 8;
+    uint8_t pin_num = pin % 8;
 
     switch(Port)
     {
@@ -349,7 +356,7 @@ void DIO_TogglePin(PORT_Name_Type Port, DIO_Pin_type pin_num)
 
 }
 
-void DIO_WritePort(PORT_Name_Type Port, unsigned char value)
+void DIO_WritePort(PORT_Name_Type Port, uint8_t value)
 {
     switch (Port)
     {
@@ -387,8 +394,10 @@ void DIO_WritePort(PORT_Name_Type Port, unsigned char value)
 /************************************* INTERRUTPS **************************************/
 
 
-void Inteupt_Edge_InitPin(PORT_Name_Type Port, DIO_Pin_type pin_num, Int_Edge_Type edge)
+void Inteupt_Edge_InitPin(DIO_AllPINS_TYPE pin, Int_Edge_Type edge)
 {
+    uint8_t Port = pin / 8;
+    uint8_t pin_num = pin % 8;
     switch (Port)
     {
         case PORTA:
@@ -474,13 +483,13 @@ void Systick_Disable()
 }
 
 
-unsigned char Systick_ReadCOUNT()
+uint8_t Systick_ReadCOUNT()
 {
     return READ_BIT(NVIC_ST_CTRL_R, 16);
 }
 
 
-void Systick_Reload_ms(unsigned long long value_ms)
+void Systick_Reload_ms(uint32_t value_ms)
 {
     unsigned long long value=0;
     value = (value_ms * 16000) + (value_ms * 24) -1;

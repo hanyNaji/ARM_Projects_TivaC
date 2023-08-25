@@ -2,27 +2,27 @@
  * LCD_Driver.c
  *
  *  Created on: Aug 18, 2023
- *      Author: hanyt
+ *      Author: hany nagy
  */
 
 #include "LCD_Driver.h"
 
 
-void _delay_ms(unsigned int n)
+void _delay_ms(uint16_t n)
 {
     int i,j;
     for(i=0;i<n;i++)
     for(j=0;j<3180;j++){};
 }
-void _delay_us( unsigned int n)
+void _delay_us( uint16_t n)
 {
     int i,j;
     for(i=0;i<n;i++)
     for(j=0;j<3;j++){};
 }
 
-#if (LCD_MODE==_8_BIT)
-void LCD_WriteCommand(unsigned char command)
+#if (LCD_MODE == 8)
+void LCD_WriteCommand(uint8_t command)
 {
     DIO_WritePin(RS, LOW);
     DIO_WritePin(RW, LOW);
@@ -44,7 +44,7 @@ void LCD_WriteCommand(unsigned char command)
 
 }
 
-void LCD_WriteData(unsigned char data)
+void LCD_WriteData(uint8_t data)
 {
     DIO_WritePin(RS,HIGH);
     DIO_WritePin(RW,LOW);
@@ -91,8 +91,8 @@ void LCD_Init(void)
     _delay_ms(1);
 
 }
-#elif (LCD_MODE==_4_BIT)
-void LCD_WriteCommand(unsigned char command)
+#elif (LCD_MODE == 4)
+void LCD_WriteCommand(uint8_t command)
 {
 
 
@@ -128,7 +128,7 @@ void LCD_WriteCommand(unsigned char command)
     _delay_ms(10);
 }
 
-void LCD_WriteData(unsigned char data)
+void LCD_WriteData(uint8_t data)
 {
     DIO_WritePin(RS, HIGH);
     DIO_WritePin(RW, LOW);
@@ -170,15 +170,15 @@ void LCD_Init(void)
 /******************************************** FUNCTONS ********************************************/
 
 
-void LCD_WriteChar(unsigned char ch)
+void LCD_WriteChar(uint8_t ch)
 {
     LCD_WriteData(ch);
 }
 
 
-void LCD_WriteString(unsigned char *str)
+void LCD_WriteString(uint8_t *str)
 {
-    unsigned char i;
+    uint8_t i;
     for(i=0;str[i];i++)
     {
         LCD_WriteData(str[i]);
@@ -186,9 +186,9 @@ void LCD_WriteString(unsigned char *str)
 
 }
 
-void LCD_WriteNumber(long long num)    //20135
+void LCD_WriteNumber(int32_t num)
 {
-    unsigned char i=0,j,arr[16]={0};
+    uint8_t i=0,j,arr[16]={0};
         if (num==0)
         {
             LCD_WriteData('0');
@@ -215,7 +215,7 @@ void LCD_WriteNumber(long long num)    //20135
 
 }
 
-void LCD_WriteNumberInBinary(unsigned char num)
+void LCD_WriteNumberInBinary(uint8_t num)
 {
     int i, flag=0;
     for(i=7; i>=0 ;i--)
@@ -237,7 +237,7 @@ void LCD_Clear(void)
     LCD_WriteCommand(0X01);
 }
 
-void LCD_SetCursor(unsigned char Line, unsigned char x)
+void LCD_SetCursor(uint8_t Line, uint8_t x)
 {
     if (Line==0)
     {
@@ -251,7 +251,7 @@ void LCD_SetCursor(unsigned char Line, unsigned char x)
 }
 
 
-void LCD_WriteNumber_4D(unsigned short int num)
+void LCD_WriteNumber_4D(uint16_t num)
 {
         LCD_WriteData(((num%10000)/1000)+'0');
         LCD_WriteData(((num%1000)/100)+'0');

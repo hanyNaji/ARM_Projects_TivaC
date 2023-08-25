@@ -2,13 +2,13 @@
  * keyPad_Driver.c
  *
  *  Created on: Aug 18, 2023
- *      Author: hanyt
+ *      Author: hany nagy
  */
 
 
 #include "keyPad_Driver.h"
 
-volatile unsigned char key_flag=0;  // flag used in the interrupt handler
+volatile unsigned char key_flag=0;  /* flag used in the interrupt handler */
 unsigned char key_row=0;
 unsigned char key_col=0;
 
@@ -29,17 +29,17 @@ unsigned  char symbol[4][4] = {{ '1', '2',  '3', '+'},
  */
 void KeyPad_Init(void)
 {
-    // input pins to read data from
-    DIO_InitPin(KIN_PORT, KP_IN1, INLLUP);
-    DIO_InitPin(KIN_PORT, KP_IN2, INLLUP);
-    DIO_InitPin(KIN_PORT, KP_IN3, INLLUP);
-    DIO_InitPin(KIN_PORT, KP_IN4, INLLUP);
+    /* input pins to read data from*/
+    DIO_InitPin(KP_IN1, INLLUP);
+    DIO_InitPin(KP_IN2, INLLUP);
+    DIO_InitPin(KP_IN3, INLLUP);
+    DIO_InitPin(KP_IN4, INLLUP);
 
-    // output pins to apply voltage to read it from inputs
-    DIO_InitPin(KOUT_PORT, KP_OUT1, OUTPUT);
-    DIO_InitPin(KOUT_PORT, KP_OUT2, OUTPUT);
-    DIO_InitPin(KOUT_PORT, KP_OUT3, OUTPUT);
-    DIO_InitPin(KOUT_PORT, KP_OUT4, OUTPUT);
+    /* output pins to apply voltage to read it from inputs*/
+    DIO_InitPin(KP_OUT1, OUTPUT);
+    DIO_InitPin(KP_OUT2, OUTPUT);
+    DIO_InitPin(KP_OUT3, OUTPUT);
+    DIO_InitPin(KP_OUT4, OUTPUT);
 }
 
 /*
@@ -50,27 +50,27 @@ char KeyPad_Read(void)
 {
     char key = DEFAULT_K;
 
-    DIO_WritePin(KOUT_PORT, KP_OUT1, HIGH);
-    DIO_WritePin(KOUT_PORT, KP_OUT2, HIGH);
-    DIO_WritePin(KOUT_PORT, KP_OUT3, HIGH);
-    DIO_WritePin(KOUT_PORT, KP_OUT4, HIGH);
+    DIO_WritePin(KP_OUT1, HIGH);
+    DIO_WritePin(KP_OUT2, HIGH);
+    DIO_WritePin(KP_OUT3, HIGH);
+    DIO_WritePin(KP_OUT4, HIGH);
 
     for (int r= 0; r < 4; r++) {
-        DIO_WritePin(KOUT_PORT, KP_OUT1+r, LOW);
+        DIO_WritePin(KP_OUT1+r, LOW);
         for (int c= 0; c < 4; c++) {
-            if(!DIO_ReadPin(KIN_PORT, KP_IN1+c))
+            if(!DIO_ReadPin(KP_IN1+c))
             {
                 key = symbol[r][c];
-                while(!DIO_ReadPin(KIN_PORT, KP_IN1+c));
+                while(!DIO_ReadPin(KP_IN1+c));
             }
         }
-        DIO_WritePin(KOUT_PORT, KP_OUT1+r, HIGH);
+        DIO_WritePin(KP_OUT1+r, HIGH);
     }
 
     return key;
 }
 /************************************************************************/
-#endif  // WITHOUT_INT
+#endif  /* WITHOUT_INT*/
 
 #if KP_MODE == WITH_INT
 /********************* with interrupt *********************/
@@ -81,26 +81,26 @@ char KeyPad_Read(void)
  */
 void KeyPad_Init(void)
 {
-    // input pins to read data from and using interrupt to read
-    DIO_InitPin(KIN_PORT, KP_IN1, INLLUP);
-    Inteupt_Edge_InitPin(KIN_PORT, KP_IN1, LOW_EDGE);
-    DIO_InitPin(KIN_PORT, KP_IN2, INLLUP);
-    Inteupt_Edge_InitPin(KIN_PORT, KP_IN2, LOW_EDGE);
-    DIO_InitPin(KIN_PORT, KP_IN3, INLLUP);
-    Inteupt_Edge_InitPin(KIN_PORT, KP_IN3, LOW_EDGE);
-    DIO_InitPin(KIN_PORT, KP_IN4, INLLUP);
-    Inteupt_Edge_InitPin(KIN_PORT, KP_IN4, LOW_EDGE);
+    /* input pins to read data from and using interrupt to read*/
+    DIO_InitPin(KP_IN1, INLLUP);
+    Inteupt_Edge_InitPin(KP_IN1, LOW_EDGE);
+    DIO_InitPin(KP_IN2, INLLUP);
+    Inteupt_Edge_InitPin(KP_IN2, LOW_EDGE);
+    DIO_InitPin(KP_IN3, INLLUP);
+    Inteupt_Edge_InitPin(KP_IN3, LOW_EDGE);
+    DIO_InitPin(KP_IN4, INLLUP);
+    Inteupt_Edge_InitPin(KP_IN4, LOW_EDGE);
 
-    // output pins to apply voltage to read it from inputs
-    DIO_InitPin(KOUT_PORT, KP_OUT1, OUTPUT);
-    DIO_InitPin(KOUT_PORT, KP_OUT2, OUTPUT);
-    DIO_InitPin(KOUT_PORT, KP_OUT3, OUTPUT);
-    DIO_InitPin(KOUT_PORT, KP_OUT4, OUTPUT);
+    /* output pins to apply voltage to read it from inputs*/
+    DIO_InitPin(KP_OUT1, OUTPUT);
+    DIO_InitPin(KP_OUT2, OUTPUT);
+    DIO_InitPin(KP_OUT3, OUTPUT);
+    DIO_InitPin(KP_OUT4, OUTPUT);
 
-    DIO_WritePin(KOUT_PORT, KP_OUT1, HIGH);
-    DIO_WritePin(KOUT_PORT, KP_OUT2, HIGH);
-    DIO_WritePin(KOUT_PORT, KP_OUT3, HIGH);
-    DIO_WritePin(KOUT_PORT, KP_OUT4, HIGH);
+    DIO_WritePin(KP_OUT1, HIGH);
+    DIO_WritePin(KP_OUT2, HIGH);
+    DIO_WritePin(KP_OUT3, HIGH);
+    DIO_WritePin(KP_OUT4, HIGH);
 }
 
 
@@ -114,19 +114,19 @@ void KeyPad_Init(void)
 char KeyPad_Read(void)
 {
     for (int r= 0; r < 4; r++) {
-        DIO_WritePin(KOUT_PORT, KP_OUT1+r, LOW);
+        DIO_WritePin(KP_OUT1+r, LOW);
         key_row = r;
-        while(!DIO_ReadPin(KIN_PORT, KP_IN1));
-        while(!DIO_ReadPin(KIN_PORT, KP_IN2));
-        while(!DIO_ReadPin(KIN_PORT, KP_IN3));
-        while(!DIO_ReadPin(KIN_PORT, KP_IN4));
-        DIO_WritePin(KOUT_PORT, KP_OUT1+r, HIGH);
+        while(!DIO_ReadPin(KP_IN1));
+        while(!DIO_ReadPin(KP_IN2));
+        while(!DIO_ReadPin(KP_IN3));
+        while(!DIO_ReadPin(KP_IN4));
+        DIO_WritePin(KP_OUT1+r, HIGH);
         if(key_flag) return 1;
     }
     return 0;
 }
 
 /************************************************************************/
-#endif  // WITH_INT
+#endif  /* WITH_INT*/
 
 

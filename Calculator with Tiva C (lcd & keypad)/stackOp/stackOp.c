@@ -2,7 +2,7 @@
  * stackOp.c
  *
  *  Created on: Aug 19, 2023
- *      Author: hanyt
+ *      Author: hany nagy
  */
 
 #include "stackOp.h"
