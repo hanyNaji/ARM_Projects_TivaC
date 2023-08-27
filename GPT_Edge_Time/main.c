@@ -17,15 +17,22 @@
 
 
 
-GPT_EdgeTime_Struct GPTM_EdgeTimer=
+GPT_Struct GPTM_EdgeTimer=
         {
          TIMER_W0,
          0x00,
          CAPTURE,
          UNCONCAT,
          EDGE_TIME,
+         CC_MODE,
          COUNT_UP,
-         NEGATIVE
+         NEGATIVE,
+         DISABLE_INT,
+         WAIT_TAEN_BIT,
+         DIS_SnapSh,
+         DIS_PWMInt,
+         NEXT_CYCLE,
+         CCP_LOW
         };
 
 
@@ -66,14 +73,14 @@ void main(void)
 
     GPT_CCP_PinInit(CCP_PIN);    /* WT0CCP0 */
 
-    GPT_Init(GPTM_EdgeTimer.timer, GPTM_EdgeTimer.mode, GPTM_EdgeTimer.preScale);
-    start();
+    GPT_Init(&GPTM_EdgeTimer);
+    GPT_Enable(GPTM_EdgeTimer.timer);
 
     while(812)
     {
         if(!DIO_ReadPin(CCP_PIN))
         {
-            read_new = read();
+            read_new = GPTcapture_read(GPTM_EdgeTimer.timer);
             uint32_t time = 50;
             if(read_old){
                 time = (read_new - read_old)/SEC_FREQ;
