@@ -26,20 +26,19 @@ volatile uint32_t read_old;
 volatile uint32_t read_new;
 volatile uint8_t distance;
 
-/*
- GPIO PORTF Interrupt handler
+/* GPIO PORTF Interrupt handler */
 void GPIOF_Handler(void)
 {
     if (GPIO_PORTF_MIS_R & (1UL << (SW1 % 8UL)))  Check if interrupt is caused by PF4/SW1
     {
-        read_new = GPTcapture_read(GPTM_EdgeTimer.timer);
-        GPIO_PORTF_ICR_R |= (1UL << (SW1 % 8UL));
+        /*read_new = GPTcapture_read(GPTM_EdgeTimer.timer);
+        GPIO_PORTF_ICR_R |= (1UL << (SW1 % 8UL));*/
     }
     else {
          Do nothing for MISRA
     }
 }
-*/
+
 
 
 /**
