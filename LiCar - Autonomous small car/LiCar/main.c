@@ -1,4 +1,5 @@
 
+
 /*TivaWare includes*/
 #include <stdbool.h>
 #include <stdint.h>
@@ -21,22 +22,13 @@
 /****  MCAL  ****/
 /* DIO*/
 /* Timers*/
-/* ADC TivaWare */
+/* ADC from TivaWare */
 
 /**** HAL *****/
-// Hany
 /* UltraSonic */
-
-// Waleed & Hamdy & Hany
 /* Motors */
-
-// Shaf3y
-/* LDRs TivaWare */
-
-// Amr
-/* Temperature Sensor TivaWare */
-
-// ALL
+/* LDRs with TivaWare */
+/* On board Temperature Sensor with TivaWare */
 /* LCD */
 
 
@@ -45,43 +37,13 @@
 #define LED_BLU     (PF2)  /* PF1/LEDB */
 #define LED_GRN     (PF3)  /* PF2/LEDG */
 
-#define SW1         (PF4)  /* PF4/SW1 */
-#define SW2         (PF0)  /* PF0/SW2 */
-
 
  /*global variables*/
 volatile uint8_t start_flag = 1;
 
-
-/* Interrupts */
-/* start if SW1 pressed */
-/* stop if SW2 pressed */
-
-/* GPIO PORTF Interrupt handler */
-void GPIOF_Handler(void)
-{
-    if (GPIO_PORTF_MIS_R & (1UL << (SW1 % 8UL)))  /*Check if interrupt is caused by PF4/SW1*/
-    {
-        start_flag = 1;
-        GPIO_PORTF_ICR_R |= (1UL << (SW1 % 8UL));
-
-    }
-    else if (GPIO_PORTF_MIS_R & (1UL << (SW2 % 8UL)))  /*Check if interrupt is caused by PF0/SW2*/
-    {
-        start_flag = 0;
-        DIO_WritePin(MOTOR1_CTL_1, LOW);
-        DIO_WritePin(MOTOR1_CTL_2, LOW);
-        DIO_WritePin(MOTOR2_CTL_1, LOW);
-        DIO_WritePin(MOTOR2_CTL_2, LOW);
-        GPIO_PORTF_ICR_R |= (1UL << (SW2 % 8UL));
-
-    }
-    else {
-         /*Do nothing for MISRA*/
-    }
-}
-
 void LCD_Display(uint32_t temp, uint32_t ultra, uint32_t left, uint32_t right);
+void carStop(void);
+
 
 /**
  * main.c
@@ -92,12 +54,6 @@ void main(void)
 
     DIO_PORT_Init(PORTA);
     DIO_PORT_Init(PORTB);
-
-//    DIO_InitPin(SW1, INLLUP);
-//    Interrupt_Edge_InitPin(SW1, LOW_EDGE);
-//
-//    DIO_InitPin(SW2, INLLUP);
-//    Interrupt_Edge_InitPin(SW2, LOW_EDGE);
 
     /* UltraSonic */
     ultraSonic_Init(TRIG_PIN, ECHO_PIN);
@@ -116,9 +72,6 @@ void main(void)
     DIO_InitPin(MOTOR1_CTL_2, OUTPUT);
     DIO_InitPin(MOTOR2_CTL_1, OUTPUT);
     DIO_InitPin(MOTOR2_CTL_2, OUTPUT);
-
-//    turn_Car(LEFT, 90);
-//    move_Forward(SPEED);
 
 
     /* LDRs */
@@ -153,10 +106,9 @@ void main(void)
 	    {
 	        distance = ultraSonic_ReadCM();
 	        if(distance < 10){
-	            /* return 180 */
+	            /* turn 180 */
 	            /* motors fun here */
 	            turn_Car(LEFT, 180);
-//	            move_Forward(SPEED);
 	        }
 
 
@@ -178,12 +130,8 @@ void main(void)
             }
             else
             {
-
-                DIO_WritePin(MOTOR1_CTL_1, LOW);
-                DIO_WritePin(MOTOR1_CTL_2, LOW);
-                DIO_WritePin(MOTOR2_CTL_1, LOW);
-                DIO_WritePin(MOTOR2_CTL_2, LOW);
-
+                /* Stop the car otherwise */
+                carStop();
             }
 	    }
 	    else
@@ -196,11 +144,6 @@ void main(void)
 
 void LCD_Display(uint32_t temp, uint32_t ultra, uint32_t left, uint32_t right)
 {
-//    static uint32_t t=0, u=0, l=0, r=0;
-//    if(t!= temp){
-//
-//    }
-
     LCD_SetCursor(0, 0);
     LCD_WriteString("T= ");
     LCD_WriteNumber_2D(temp-36);
@@ -211,4 +154,12 @@ void LCD_Display(uint32_t temp, uint32_t ultra, uint32_t left, uint32_t right)
     LCD_WriteNumber_4D(left);
     LCD_WriteString(" LR:");
     LCD_WriteNumber_4D(right);
+}
+
+void carStop(void)
+{
+	DIO_WritePin(MOTOR1_CTL_1, LOW);
+        DIO_WritePin(MOTOR1_CTL_2, LOW);
+        DIO_WritePin(MOTOR2_CTL_1, LOW);
+        DIO_WritePin(MOTOR2_CTL_2, LOW);
 }
