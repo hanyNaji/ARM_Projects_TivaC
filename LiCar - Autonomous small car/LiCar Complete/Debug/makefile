@@ -12,12 +12,12 @@ GEN_CMDS__FLAG :=
 ORDERED_OBJS += \
 "./main.obj" \
 "./tm4c123gh6pm_startup_ccs.obj" \
-"./DC_motor/DC_motor.obj" \
-"./LCD_Driver/LCD_Driver.obj" \
-"./Sensors/Sensor.obj" \
-"./Tiva_DIO/Tiva_DIO.obj" \
-"./Tiva_GPTimers/Tiva_GPTimers.obj" \
-"./ultraSonic/ultraSonic.obj" \
+"./HAL/DC_motor/DC_motor.obj" \
+"./HAL/LCD_Driver/LCD_Driver.obj" \
+"./HAL/Sensors/Sensor.obj" \
+"./HAL/ultraSonic/ultraSonic.obj" \
+"./MCAL/Tiva_DIO/Tiva_DIO.obj" \
+"./MCAL/Tiva_GPTimers/Tiva_GPTimers.obj" \
 "../tm4c123gh6pm.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
@@ -31,19 +31,19 @@ RMDIR := RMDIR /S/Q
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include subdir_vars.mk
--include DC_motor/subdir_vars.mk
--include LCD_Driver/subdir_vars.mk
--include Sensors/subdir_vars.mk
--include Tiva_DIO/subdir_vars.mk
--include Tiva_GPTimers/subdir_vars.mk
--include ultraSonic/subdir_vars.mk
+-include HAL/DC_motor/subdir_vars.mk
+-include HAL/LCD_Driver/subdir_vars.mk
+-include HAL/Sensors/subdir_vars.mk
+-include HAL/ultraSonic/subdir_vars.mk
+-include MCAL/Tiva_DIO/subdir_vars.mk
+-include MCAL/Tiva_GPTimers/subdir_vars.mk
 -include subdir_rules.mk
--include DC_motor/subdir_rules.mk
--include LCD_Driver/subdir_rules.mk
--include Sensors/subdir_rules.mk
--include Tiva_DIO/subdir_rules.mk
--include Tiva_GPTimers/subdir_rules.mk
--include ultraSonic/subdir_rules.mk
+-include HAL/DC_motor/subdir_rules.mk
+-include HAL/LCD_Driver/subdir_rules.mk
+-include HAL/Sensors/subdir_rules.mk
+-include HAL/ultraSonic/subdir_rules.mk
+-include MCAL/Tiva_DIO/subdir_rules.mk
+-include MCAL/Tiva_GPTimers/subdir_rules.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -173,8 +173,8 @@ LiCar.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "main.obj" "tm4c123gh6pm_startup_ccs.obj" "DC_motor\DC_motor.obj" "LCD_Driver\LCD_Driver.obj" "Sensors\Sensor.obj" "Tiva_DIO\Tiva_DIO.obj" "Tiva_GPTimers\Tiva_GPTimers.obj" "ultraSonic\ultraSonic.obj" 
-	-$(RM) "main.d" "tm4c123gh6pm_startup_ccs.d" "DC_motor\DC_motor.d" "LCD_Driver\LCD_Driver.d" "Sensors\Sensor.d" "Tiva_DIO\Tiva_DIO.d" "Tiva_GPTimers\Tiva_GPTimers.d" "ultraSonic\ultraSonic.d" 
+	-$(RM) "main.obj" "tm4c123gh6pm_startup_ccs.obj" "HAL\DC_motor\DC_motor.obj" "HAL\LCD_Driver\LCD_Driver.obj" "HAL\Sensors\Sensor.obj" "HAL\ultraSonic\ultraSonic.obj" "MCAL\Tiva_DIO\Tiva_DIO.obj" "MCAL\Tiva_GPTimers\Tiva_GPTimers.obj" 
+	-$(RM) "main.d" "tm4c123gh6pm_startup_ccs.d" "HAL\DC_motor\DC_motor.d" "HAL\LCD_Driver\LCD_Driver.d" "HAL\Sensors\Sensor.d" "HAL\ultraSonic\ultraSonic.d" "MCAL\Tiva_DIO\Tiva_DIO.d" "MCAL\Tiva_GPTimers\Tiva_GPTimers.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

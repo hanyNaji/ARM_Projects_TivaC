@@ -11,12 +11,12 @@
 #include "driverlib/lcd.h"
 
 /* Private includes*/
-#include "Tiva_DIO/Tiva_DIO.h"
-#include "DC_motor/DC_motor.h"
-#include "Tiva_GPTimers/Tiva_GPTimers.h"
-#include "ultraSonic/ultraSonic.h"
-#include "LCD_Driver/LCD_Driver.h"
-#include "Sensors/Sensor.h"
+#include "MCAL/Tiva_GPTimers/Tiva_GPTimers.h"
+#include "MCAL/Tiva_DIO/Tiva_DIO.h"
+#include "HAL/ultraSonic/ultraSonic.h"
+#include "HAL/LCD_Driver/LCD_Driver.h"
+#include "HAL/DC_motor/DC_motor.h"
+#include "HAL/Sensors/Sensor.h"
 
 
 /****  MCAL  ****/
@@ -51,27 +51,16 @@ void carStop(void);
 void main(void)
 {
     /* Initialization */
-
     DIO_PORT_Init(PORTA);
     DIO_PORT_Init(PORTB);
+    DIO_PORT_Init(PORTC);
+    DIO_PORT_Init(PORTF);
 
     /* UltraSonic */
     ultraSonic_Init(TRIG_PIN, ECHO_PIN);
 
     /* Motors */
-    PWM_init(TIMER1);
-    PWM_init(TIMER3);
-
-    PWM_PinInit(MOTOR1_PWM);
-    PWM_PinInit(MOTOR2_PWM);
-
-    Duty_Cycle (TIMER1, 50);
-    Duty_Cycle (TIMER3, 50);
-
-    DIO_InitPin(MOTOR1_CTL_1, OUTPUT);
-    DIO_InitPin(MOTOR1_CTL_2, OUTPUT);
-    DIO_InitPin(MOTOR2_CTL_1, OUTPUT);
-    DIO_InitPin(MOTOR2_CTL_2, OUTPUT);
+    motors_Init();
 
 
     /* LDRs */
@@ -86,59 +75,59 @@ void main(void)
     LCD_Init();
 
 
-    /**************************/
+    /************* local variables *************/
     volatile uint32_t distance=0;
     volatile uint32_t temp=0;
     volatile uint32_t left=0;
     volatile uint32_t right=0;
 
 
-	while(812)
-	{
-	    temp=Temp_Read();
+    while(812)
+    {
+        temp=Temp_Read();
         READ_LEFT(&left);
         READ_Right(&right);
-	    distance = ultraSonic_ReadCM();
+        distance = ultraSonic_ReadCM();
 
         LCD_Display(temp, distance, left, right);
 
-	    if(start_flag)
-	    {
-	        distance = ultraSonic_ReadCM();
-	        if(distance < 10){
-	            /* turn 180 */
-	            /* motors fun here */
-	            turn_Car(LEFT, 180);
-	        }
+        if(start_flag)
+        {
+            distance = ultraSonic_ReadCM();
+            if(distance < 20){
+                /* turn 180 */
+                /* motors fun here */
+                turn_Car(REVERSE, 180);
+            }
 
 
-	        READ_LEFT(&left);
-	        READ_Right(&right);
-	        int32_t ldrDiff = left - right;
+            READ_LEFT(&left);
+            READ_Right(&right);
+            int32_t ldrDiff = left - right;
 
-            if(ldrDiff > 100 ){
+            if(ldrDiff > 200 ){
                 /* turn Right */
                 /* motors fun here */
                 turn_Car(RIGHT, ANGLE);
-                move_Forward(SPEED);
+//                move_Forward(SPEED);
             }
-            else if(ldrDiff < -150 ){
+            else if(ldrDiff < -200 ){
                 /* turn Left */
                 /* motors fun here */
                 turn_Car(LEFT, ANGLE);
-                move_Forward(SPEED);
+//                move_Forward(SPEED);
             }
             else
             {
                 /* Stop the car otherwise */
                 carStop();
             }
-	    }
-	    else
-	    {
-	        /* */
-	    }
-	}
+        }
+        else
+        {
+            /* */
+        }
+    }
 }
 
 
@@ -158,8 +147,8 @@ void LCD_Display(uint32_t temp, uint32_t ultra, uint32_t left, uint32_t right)
 
 void carStop(void)
 {
-	DIO_WritePin(MOTOR1_CTL_1, LOW);
-        DIO_WritePin(MOTOR1_CTL_2, LOW);
-        DIO_WritePin(MOTOR2_CTL_1, LOW);
-        DIO_WritePin(MOTOR2_CTL_2, LOW);
+    DIO_WritePin(MOTOR1_CTL_1, LOW);
+    DIO_WritePin(MOTOR1_CTL_2, LOW);
+    DIO_WritePin(MOTOR2_CTL_1, LOW);
+    DIO_WritePin(MOTOR2_CTL_2, LOW);
 }

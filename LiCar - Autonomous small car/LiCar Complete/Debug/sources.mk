@@ -112,10 +112,10 @@ PDE_DEPS__QUOTED :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 . \
-DC_motor \
-LCD_Driver \
-Sensors \
-Tiva_DIO \
-Tiva_GPTimers \
-ultraSonic \
+HAL/DC_motor \
+HAL/LCD_Driver \
+HAL/Sensors \
+HAL/ultraSonic \
+MCAL/Tiva_DIO \
+MCAL/Tiva_GPTimers \
 
