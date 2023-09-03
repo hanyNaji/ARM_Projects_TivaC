@@ -32,12 +32,16 @@
 enum{
     UARTOFF=0,
     UART_RO,
-    UART_TR,
+    UART_RW,
     UART_ER
-}STATE;
+}volatile STATE;
 
 char data[202];
 uint8_t ind;
+
+
+char dataRec[202];
+uint8_t indRec;
 
 
 void serialDebug(uint32_t baudRate);
@@ -101,7 +105,7 @@ IntGPIOf(void)
 void main(void)
 {
     char cThisChar;
-//    uint8_t start = 0;
+    char cThisCharRec;
 
     /* Set the clocking to run directly from the external crystal/oscillator.
        crystal on your board.*/
@@ -122,21 +126,6 @@ void main(void)
      */
     serialDebug(115200);
     Delay(1);
-
-
-    /* Enable UART7 to connect to other MCU */
-//    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART7);
-//    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
-//
-//    GPIOPinConfigure(GPIO_PE0_U7RX);
-//    GPIOPinConfigure(GPIO_PE1_U7TX);
-//
-//    GPIOPinTypeUART(GPIO_PORTE_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-//
-//    UARTConfigSetExpClk(UART7_BASE, SysCtlClockGet(), 9600,
-//                        (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
-//                         UART_CONFIG_PAR_NONE));
-
 
     SysCtlPeripheralEnable(SYSCTL_PERIPH_UART5);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
@@ -182,21 +171,68 @@ void main(void)
     {
         switch(STATE)
         {
-            case UARTOFF:
+            case UARTOFF:  /* Off-Line state ignore every thing */
+                UARTSend(UART0_BASE, (uint8_t *)"\r\nOff-Line! ", strlen("\r\nOff-Line! "));
+                UARTDisable(UART0_BASE);
+                UARTDisable(UART5_BASE);
                 LED_IND(UARTOFF);
+                ind = 0;
+                indRec = 0;
+                while(STATE == UARTOFF);
                 break;
 
-            case UART_RO:
+            case UART_RO:   /* Read-Only state Read msg and show it on PC */
+                UARTDisable(UART0_BASE);
+                UARTEnable(UART5_BASE);
                 LED_IND(UART_RO);
-                UARTSend(UART0_BASE, (uint8_t *)"\r\nSending: ",
-                             strlen("\r\nSending: "));
-                UARTSend(UART0_BASE, (uint8_t *)"\r\n[1]: ",
-                             strlen("\r\n[1]: "));
+                ind = 0;
+                indRec = 0;
+                UARTEnable(UART0_BASE);
+                UARTSend(UART0_BASE, (uint8_t *)"\r\nRead-Only: ", strlen("\r\nRead-Only: "));
+                UARTSend(UART0_BASE, (uint8_t *)"\r\n[2]: ", strlen("\r\n[2]: "));
+                UARTDisable(UART0_BASE);
                 do
                 {
-                    /* Read a character using the blocking read function.  This function */
-                    /* will not return until a character is available. */
+
+                    /* Read a character using the non blocking read function.  */
+                    int32_t cChar = UARTCharGetNonBlocking(UART5_BASE);
+                    if(cChar != -1){
+                        if(ind < MAX_LEN){
+                            data[ind++] = (char)cChar;
+                            /* Write the same character on terminal */
+//                            UARTCharPut(UART0_BASE, cThisChar);
+                            if(((char)cChar == '\n'))
+                            {
+                                UARTEnable(UART0_BASE);
+                                UARTSend(UART0_BASE, (uint8_t*)data, ind);
+                                ind=0;
+                                UARTSend(UART0_BASE, (uint8_t *)"\rrecvd\n", strlen("\rrecvd\n"));
+                                UARTDisable(UART0_BASE);
+                            }
+                        }
+                        else if(ind >= MAX_LEN){
+                            STATE = UART_ER;
+                            ind=0;
+                        }else {
+                        }
+                    }
+                }
+                while((cThisChar != '\n') && (cThisChar != '\r')&&(STATE == UART_RO));
+                break;
+
+            case UART_RW:   /* Read-Write state Read/write msg and show it on PC */
+                UARTEnable(UART0_BASE);
+                UARTEnable(UART5_BASE);
+                LED_IND(UART_RW);
+                ind = 0;
+                indRec = 0;
+                UARTSend(UART0_BASE, (uint8_t *)"\r\nRead-Write: ", strlen("\r\nRead-Write: "));
+                UARTSend(UART0_BASE, (uint8_t *)"\r\n[1]: ", strlen("\r\n[1]: "));
+                do
+                {
+                    /* Read a character using the non blocking read function.  */
                     cThisChar = UARTCharGetNonBlocking(UART0_BASE);
+                    cThisCharRec = UARTCharGetNonBlocking(UART5_BASE);
                     if(cThisChar != 255){
                         if(ind < MAX_LEN){
                             data[ind++] = cThisChar;
@@ -207,9 +243,7 @@ void main(void)
                                 UARTSend(UART5_BASE, (uint8_t*)data, ind);
                                 UARTCharPut(UART5_BASE, '\n');
                                 ind=0;
-
-                                UARTSend(UART0_BASE, (uint8_t *)"\r\nsent\n",
-                                         strlen("\r\nsent\n"));
+                                UARTSend(UART0_BASE, (uint8_t *)"\r\nsent\n", strlen("\r\nsent\n"));
                             }
                         }
                         else if(ind >= MAX_LEN){
@@ -218,39 +252,25 @@ void main(void)
                         }else {
                         }
                     }
-                }
-                while((cThisChar != '\n') && (cThisChar != '\r')&&(STATE == UART_RO));
-                break;
-
-            case UART_TR:
-                LED_IND(UART_TR);
-                UARTSend(UART0_BASE, (uint8_t *)"\r\nRecieving: ", strlen("\r\nRecieving: "));
-                UARTSend(UART0_BASE, (uint8_t *)"\r\n[2]: ", strlen("\r\n[2]: "));
-                do
-                {
-                    /* Read a character using the blocking read function.  This function */
-                    /* will not return until a character is available. */
-                    int32_t cChar = UARTCharGetNonBlocking(UART5_BASE);
-                    if(cChar != -1){
-                        if(ind < MAX_LEN){
-                            data[ind++] = (char)cChar;
-                            /* Write the same character on terminal */
-//                            UARTCharPut(UART0_BASE, cThisChar);
-                            if(((char)cChar == '\n'))
+                    if(cThisCharRec != cThisCharRec){
+                        if(indRec < MAX_LEN){
+                            dataRec[indRec++] = (char)cThisCharRec;
+                            if(((char)cThisCharRec == '\n'))
                             {
-                                UARTSend(UART0_BASE, (uint8_t*)data, ind);
-                                ind=0;
+                                UARTSend(UART0_BASE, (uint8_t*)dataRec, indRec);
+                                indRec=0;
                                 UARTSend(UART0_BASE, (uint8_t *)"\rrecvd\n", strlen("\rrecvd\n"));
                             }
                         }
-                        else if(ind >= MAX_LEN){
+                        else if(indRec >= MAX_LEN){
                             STATE = UART_ER;
-                            ind=0;
+                            indRec=0;
                         }else {
                         }
                     }
+
                 }
-                while((cThisChar != '\n') && (cThisChar != '\r')&&(STATE == UART_TR));
+                while((cThisChar != '\n') && (cThisChar != '\r')&&(STATE == UART_RW));
                 break;
 
             case UART_ER:
@@ -290,25 +310,24 @@ void LED_IND(uint8_t state)
     switch(state)
     {
         case UARTOFF:
-            /* Turn off the LEDs. */
-            GPIOPinWrite(GPIO_PORTF_BASE, RED_LED, 0x0);
+            /* Turn off the LED Red. */
+            GPIOPinWrite(GPIO_PORTF_BASE, RED_LED, RED_LED);
             GPIOPinWrite(GPIO_PORTF_BASE, GREEN_LED, 0x0);
             GPIOPinWrite(GPIO_PORTF_BASE, BLUE_LED, 0x0);
             break;
 
         case UART_RO:
-
             /* Turn on the LED Blue. */
             GPIOPinWrite(GPIO_PORTF_BASE, RED_LED, 0x0);
             GPIOPinWrite(GPIO_PORTF_BASE, GREEN_LED, 0x0);
             GPIOPinWrite(GPIO_PORTF_BASE, BLUE_LED, BLUE_LED);
             break;
 
-        case UART_TR:
+        case UART_RW:
             /* Turn off the LED Green. */
-            GPIOPinWrite(GPIO_PORTF_BASE, RED_LED, 0x0);
+            GPIOPinWrite(GPIO_PORTF_BASE, RED_LED, RED_LED);
             GPIOPinWrite(GPIO_PORTF_BASE, GREEN_LED, GREEN_LED);
-            GPIOPinWrite(GPIO_PORTF_BASE, BLUE_LED, 0x0);
+            GPIOPinWrite(GPIO_PORTF_BASE, BLUE_LED, BLUE_LED);
             break;
 
         case UART_ER:
