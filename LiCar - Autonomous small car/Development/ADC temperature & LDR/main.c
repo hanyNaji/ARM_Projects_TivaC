@@ -51,7 +51,6 @@ void main(void)
 
 
 
-
 void LCD_Display(uint32_t temp,uint32_t left,uint32_t right)
 {
     LCD_GoTo(0, 1);
