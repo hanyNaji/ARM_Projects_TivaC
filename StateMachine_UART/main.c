@@ -104,7 +104,10 @@ IntGPIOf(void)
 
 void main(void)
 {
+
     char cThisChar;
+    char cThisCharRec;
+    uint8_t stateFlag[3]={0};
 
     /* Set the clocking to run directly from the external crystal/oscillator.
        crystal on your board.*/
@@ -173,6 +176,8 @@ void main(void)
                 UARTSend(UART0_BASE, (uint8_t *)"\r\nOff-Line! ", strlen("\r\nOff-Line! "));
                 UARTDisable(UART0_BASE);
                 UARTDisable(UART5_BASE);
+                stateFlag[1] = 0;
+                stateFlag[2] = 0;
                 LED_IND(UARTOFF);
                 ind = 0;
                 indRec = 0;
@@ -185,7 +190,11 @@ void main(void)
                 LED_IND(UART_RO);
                 ind = 0;
                 indRec = 0;
-                UARTSend(UART0_BASE, (uint8_t *)"\r\nRead-Only: ", strlen("\r\nRead-Only: "));
+                if(!stateFlag[1]){
+                    UARTSend(UART0_BASE, (uint8_t *)"\r\nRead-Only: ", strlen("\r\nRead-Only: "));
+                    stateFlag[1] = 1;
+                    stateFlag[2] = 0;
+                }
                 UARTSend(UART0_BASE, (uint8_t *)"\r\n[2]: ", strlen("\r\n[2]: "));
                 UARTDisable(UART0_BASE);
                 do
@@ -200,7 +209,7 @@ void main(void)
                             {
                                 UARTEnable(UART0_BASE);
                                 UARTSend(UART0_BASE, (uint8_t*)data, ind);
-                                UARTSend(UART0_BASE, (uint8_t *)"\rrecvd\n", strlen("\rrecvd\n"));
+                                UARTSend(UART0_BASE, (uint8_t *)"\r[2]: ", strlen("\r[2]: "));
                                 UARTDisable(UART0_BASE);
                                 ind=0;
                             }
@@ -221,20 +230,24 @@ void main(void)
                 LED_IND(UART_RW);
                 ind = 0;
                 indRec = 0;
-                UARTSend(UART0_BASE, (uint8_t *)"\r\nRead-Write: ", strlen("\r\nRead-Write: "));
+                if(!stateFlag[2]){
+                    UARTSend(UART0_BASE, (uint8_t *)"\r\nRead-Write: ", strlen("\r\nRead-Write: "));
+                    stateFlag[1] = 0;
+                    stateFlag[2] = 1;
+                }
                 UARTSend(UART0_BASE, (uint8_t *)"\r\n[1]: ", strlen("\r\n[1]: "));
                 do
                 {
                     /* Read a character using the non blocking read function.  */
-                    cThisChar = UARTCharGetNonBlocking(UART5_BASE);
-                    if(cThisChar != 255){
+                    cThisCharRec = UARTCharGetNonBlocking(UART5_BASE);
+                    if(cThisCharRec != 255){
                         if(indRec < MAX_LEN){
-                            dataRec[indRec++] = cThisChar;
-                            if((cThisChar == '\n'))
+                            dataRec[indRec++] = cThisCharRec;
+                            if((cThisCharRec == '#'))
                             {
                                 UARTSend(UART0_BASE, (uint8_t*)dataRec, indRec);
                                 indRec=0;
-                                UARTSend(UART0_BASE, (uint8_t *)"\rrecvd\n", strlen("\rrecvd\n"));
+                                UARTSend(UART0_BASE, (uint8_t *)"\r[2]: ", strlen("\r[2]: "));
                             }
                         }
                         else if(indRec >= MAX_LEN){
@@ -255,7 +268,6 @@ void main(void)
                                 UARTSend(UART5_BASE, (uint8_t*)data, ind);
                                 UARTCharPut(UART5_BASE, '#');
                                 ind=0;
-                                UARTSend(UART0_BASE, (uint8_t *)"\r\nsent\n", strlen("\r\nsent\n"));
                             }
                         }
                         else if(ind >= MAX_LEN){
@@ -266,10 +278,14 @@ void main(void)
                     }
 
                 }
-                while((cThisChar != '\n') && (cThisChar != '\r')&&(STATE == UART_RW));
+                while((cThisCharRec != '#') && (cThisChar != '\n') && (cThisChar != '\r')&&(STATE == UART_RW));
                 break;
 
             case UART_ER:
+                UARTDisable(UART0_BASE);
+                UARTDisable(UART5_BASE);
+                stateFlag[1] = 0;
+                stateFlag[2] = 0;
                 LED_IND(UART_ER);
                 break;
 
