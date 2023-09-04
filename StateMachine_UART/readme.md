@@ -4,6 +4,12 @@
 
 This project involves implementing a state machine using UART communication between two Tiva C TM4C123 microcontrollers. The state machine controls the flow of data transmission and reception between the two microcontrollers.
 
+### First Tiva C
+<img src="https://github.com/hanyNaji/ARM_Projects_TivaC/blob/main/StateMachine_UART/data/uartsm1.png" alt="Alt text" title="Tiva C preview">
+
+### Second Tiva C
+<img src="https://github.com/hanyNaji/ARM_Projects_TivaC/blob/main/StateMachine_UART/data/uartsm2.png" alt="Alt text" title="Tiva C preview">
+
 
 ## Software Setup
 1. Hardware Configuration: Connect the two Tiva C TM4C123 microcontrollers with proper UART communication pins. Refer to the hardware documentation for pin connections.
