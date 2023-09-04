@@ -105,7 +105,6 @@ IntGPIOf(void)
 void main(void)
 {
     char cThisChar;
-    char cThisCharRec;
 
     /* Set the clocking to run directly from the external crystal/oscillator.
        crystal on your board.*/
@@ -166,7 +165,6 @@ void main(void)
 
     IntEnable(INT_GPIOF);
 
-
     while(812)
     {
         switch(STATE)
@@ -182,12 +180,11 @@ void main(void)
                 break;
 
             case UART_RO:   /* Read-Only state Read msg and show it on PC */
-                UARTDisable(UART0_BASE);
+                UARTEnable(UART0_BASE);
                 UARTEnable(UART5_BASE);
                 LED_IND(UART_RO);
                 ind = 0;
                 indRec = 0;
-                UARTEnable(UART0_BASE);
                 UARTSend(UART0_BASE, (uint8_t *)"\r\nRead-Only: ", strlen("\r\nRead-Only: "));
                 UARTSend(UART0_BASE, (uint8_t *)"\r\n[2]: ", strlen("\r\n[2]: "));
                 UARTDisable(UART0_BASE);
@@ -195,19 +192,17 @@ void main(void)
                 {
 
                     /* Read a character using the non blocking read function.  */
-                    int32_t cChar = UARTCharGetNonBlocking(UART5_BASE);
-                    if(cChar != -1){
+                    cThisChar = UARTCharGetNonBlocking(UART5_BASE);
+                    if((int8_t)cThisChar != -1){
                         if(ind < MAX_LEN){
-                            data[ind++] = (char)cChar;
-                            /* Write the same character on terminal */
-//                            UARTCharPut(UART0_BASE, cThisChar);
-                            if(((char)cChar == '\n'))
+                            data[ind++] = cThisChar;
+                            if((cThisChar == '#'))
                             {
                                 UARTEnable(UART0_BASE);
                                 UARTSend(UART0_BASE, (uint8_t*)data, ind);
-                                ind=0;
                                 UARTSend(UART0_BASE, (uint8_t *)"\rrecvd\n", strlen("\rrecvd\n"));
                                 UARTDisable(UART0_BASE);
+                                ind=0;
                             }
                         }
                         else if(ind >= MAX_LEN){
@@ -217,7 +212,7 @@ void main(void)
                         }
                     }
                 }
-                while((cThisChar != '\n') && (cThisChar != '\r')&&(STATE == UART_RO));
+                while((cThisChar != '#') && (STATE == UART_RO));
                 break;
 
             case UART_RW:   /* Read-Write state Read/write msg and show it on PC */
@@ -231,31 +226,11 @@ void main(void)
                 do
                 {
                     /* Read a character using the non blocking read function.  */
-                    cThisChar = UARTCharGetNonBlocking(UART0_BASE);
-                    cThisCharRec = UARTCharGetNonBlocking(UART5_BASE);
+                    cThisChar = UARTCharGetNonBlocking(UART5_BASE);
                     if(cThisChar != 255){
-                        if(ind < MAX_LEN){
-                            data[ind++] = cThisChar;
-                            /* Write the same character on terminal */
-                            UARTCharPut(UART0_BASE, cThisChar);
-                            if((cThisChar == '\n') || (cThisChar == '\r'))
-                            {
-                                UARTSend(UART5_BASE, (uint8_t*)data, ind);
-                                UARTCharPut(UART5_BASE, '\n');
-                                ind=0;
-                                UARTSend(UART0_BASE, (uint8_t *)"\r\nsent\n", strlen("\r\nsent\n"));
-                            }
-                        }
-                        else if(ind >= MAX_LEN){
-                            STATE = UART_ER;
-                            ind =0;
-                        }else {
-                        }
-                    }
-                    if(cThisCharRec != cThisCharRec){
                         if(indRec < MAX_LEN){
-                            dataRec[indRec++] = (char)cThisCharRec;
-                            if(((char)cThisCharRec == '\n'))
+                            dataRec[indRec++] = cThisChar;
+                            if((cThisChar == '\n'))
                             {
                                 UARTSend(UART0_BASE, (uint8_t*)dataRec, indRec);
                                 indRec=0;
@@ -265,6 +240,27 @@ void main(void)
                         else if(indRec >= MAX_LEN){
                             STATE = UART_ER;
                             indRec=0;
+                        }else {
+                        }
+                    }
+                    /* Read a character using the non blocking read function.  */
+                    cThisChar = UARTCharGetNonBlocking(UART0_BASE);
+                    if(cThisChar != 255){
+                        if(ind < MAX_LEN){
+                            data[ind++] = cThisChar;
+                            /* Write the same character on terminal */
+                            UARTCharPut(UART0_BASE, cThisChar);
+                            if((cThisChar == '\n') || (cThisChar == '\r'))
+                            {
+                                UARTSend(UART5_BASE, (uint8_t*)data, ind);
+                                UARTCharPut(UART5_BASE, '#');
+                                ind=0;
+                                UARTSend(UART0_BASE, (uint8_t *)"\r\nsent\n", strlen("\r\nsent\n"));
+                            }
+                        }
+                        else if(ind >= MAX_LEN){
+                            STATE = UART_ER;
+                            ind =0;
                         }else {
                         }
                     }
