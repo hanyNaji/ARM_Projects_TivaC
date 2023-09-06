@@ -13,6 +13,7 @@ main.obj: ../MCAL/Tiva_GPTimers/Tiva_GPTimers.h
 main.obj: D:/Embedded/EUI/CC_first/LiCar/MCAL/Tiva_DIO/Tiva_DIO.h
 main.obj: D:/Embedded/EUI/CC_first/LiCar/MCAL/Tiva_DIO/bitwseOperations.h
 main.obj: D:/Embedded/EUI/CC_first/LiCar/MCAL/Tiva_DIO/tm4c123gh6pm.h
+main.obj: ../MCAL/Tiva_DIO/Tiva_DIO.h
 main.obj: ../HAL/ultraSonic/ultraSonic.h
 main.obj: ../HAL/LCD_Driver/LCD_Driver.h
 main.obj: ../HAL/DC_motor/DC_motor.h
@@ -31,6 +32,7 @@ C:/ti/TivaWare_C_Series-2.2.0.295/driverlib/lcd.h:
 D:/Embedded/EUI/CC_first/LiCar/MCAL/Tiva_DIO/Tiva_DIO.h: 
 D:/Embedded/EUI/CC_first/LiCar/MCAL/Tiva_DIO/bitwseOperations.h: 
 D:/Embedded/EUI/CC_first/LiCar/MCAL/Tiva_DIO/tm4c123gh6pm.h: 
+../MCAL/Tiva_DIO/Tiva_DIO.h: 
 ../HAL/ultraSonic/ultraSonic.h: 
 ../HAL/LCD_Driver/LCD_Driver.h: 
 ../HAL/DC_motor/DC_motor.h: 

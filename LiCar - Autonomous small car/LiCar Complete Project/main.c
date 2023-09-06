@@ -48,6 +48,8 @@ void carStop(void);
 /**
  * main.c
  */
+
+void main(void);
 void main(void)
 {
     /* Initialization */
@@ -76,10 +78,10 @@ void main(void)
 
 
     /************* local variables *************/
-    volatile uint32_t distance=0;
-    volatile uint32_t temp=0;
-    volatile uint32_t left=0;
-    volatile uint32_t right=0;
+     uint32_t distance=0;
+     uint32_t temp=0;
+     uint32_t left=0;
+     uint32_t right=0;
 
 
     while(812)
@@ -109,13 +111,11 @@ void main(void)
                 /* turn Right */
                 /* motors fun here */
                 turn_Car(RIGHT, ANGLE);
-//                move_Forward(SPEED);
             }
             else if(ldrDiff < -200 ){
                 /* turn Left */
                 /* motors fun here */
                 turn_Car(LEFT, ANGLE);
-//                move_Forward(SPEED);
             }
             else
             {
